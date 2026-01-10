@@ -13,7 +13,7 @@ export const initialVoyages = [
     departure: "2025-12-15",
     duration: "7 nights",
     ports: ["Miami", "Nassau", "St. Thomas", "San Juan"],
-    price: 1299,
+    price: "₹22299",
     cabins: [
       { type: "Interior", price: 1299, available: 15, maxOccupancy: 2 },
       { type: "Ocean View", price: 1599, available: 8, maxOccupancy: 2 },

@@ -3,7 +3,7 @@ import './Css/payment.css';
 
 const PaymentForm = ({ voyage, cabin, passengerCount, onSubmit, onBack }) => {
   const [paymentMode, setPaymentMode] = useState('card');
-  const [paymentData, setPaymentData] = useState({
+  const [paymentData] = useState({
     cardName: '',
     cardNumber: '',
     expiryDate: '',
@@ -22,7 +22,7 @@ const PaymentForm = ({ voyage, cabin, passengerCount, onSubmit, onBack }) => {
     );
   }
 
-  const totalPrice = cabin.price * passengerCount;
+  const totalPrice =  passengerCount;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,6 +75,7 @@ const PaymentForm = ({ voyage, cabin, passengerCount, onSubmit, onBack }) => {
       onSubmit({ ...paymentData, paymentMode, totalPrice });
     }, 1500);
   };
+
 
   return (
     <div className="payment-details">

@@ -20,24 +20,24 @@ const Home = ({ voyages }) => {
       image: Image5,
       title: "Andaman Adventure",
       duration: "7 nights",
-      price: "$999",
-      link: "/voyages/andaman"
+      price: "$1000",
+      link: "/voyages"
     },
     {
       id: 2,
       image: Image6,
       title: "Dolphin Discovery",
       duration: "5 nights",
-      price: "$799",
-      link: "/voyages/dolphin-discovery"
+      price: "$2000",
+      link: "/voyages"
     },
     {
       id: 3,
       image: Image8,
       title: "Sunset Luxury Cruise",
       duration: "3 nights",
-      price: "$1299",
-      link: "/voyages/sunset-luxury"
+      price: "$3000",
+      link: "/voyages"
     }
   ];
 
@@ -50,7 +50,7 @@ const Home = ({ voyages }) => {
    
                   <Lottie animationData={anime} loop={true}
                 style={{ width: '400px', height: '300px' }}
- 
+
                      />
 
       </div>
@@ -75,15 +75,7 @@ const Home = ({ voyages }) => {
         </div>
       </section>
 
-      <section className="popular-voyages">
-        <h2>Popular Voyages</h2>
-        <div className="voyage-list">
-          {featuredVoyages.map(voyage => (
-            <VoyageCard key={voyage.id} voyage={voyage} />
-          ))}
-        </div>
-        <Link to="/voyages" className="cta-button secondary">View All Voyages</Link>
-      </section>
+    
 
       <section className="benefits">
         <h2>Why Choose Us</h2>

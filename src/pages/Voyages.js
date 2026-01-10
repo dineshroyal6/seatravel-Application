@@ -11,7 +11,7 @@ const Voyages = ({ voyages }) => {
     const durationNights = Number(voyage.duration);
     const voyagePrice = Number(voyage.price);
 
-    // Filter by duration
+  
     let durationMatch = true;
     if (durationFilter === '7') {
       durationMatch = durationNights <= 7;
@@ -21,7 +21,7 @@ const Voyages = ({ voyages }) => {
       durationMatch = durationNights > 14;
     }
 
-    // Filter by price
+    
     let priceMatch = true;
     if (priceFilter === '1000') {
       priceMatch = voyagePrice <= 1000;
@@ -63,10 +63,10 @@ const Voyages = ({ voyages }) => {
             onChange={(e) => setPriceFilter(e.target.value)}
           >
             <option value="all">All Prices</option>
-            <option value="1000">Under $1000</option>
-            <option value="2000">Under $2000</option>
-            <option value="3000">Under $3000</option>
-            <option value="3000+">Above $3000</option>
+            <option value="1000">Under  ₹36666</option>
+            <option value="2000">Under  ₹46666</option>
+            <option value="3000">Under  ₹56666</option>
+            <option value="3000+">Above ₹66666</option>
           </select>
         </div>
 
@@ -94,9 +94,9 @@ const Voyages = ({ voyages }) => {
           <Link to="/admin" className="action-button">
             🛠️ Admin
           </Link>
-          <Link to="/bookingsteps" className="action-button">
+          {/* <Link to="/bookingsteps" className="action-button">
             📘 Booking Steps
-          </Link>
+          </Link> */}
         </div>
       </section>
     </>
