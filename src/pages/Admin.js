@@ -1,169 +1,188 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import '../components/Css/MyAccount.css';
 
-const MyAccount = ({ bookings, voyages, currentUser, loginUser }) => {
+const Admin = ({ voyages, bookings }) => {
   const [activeTab, setActiveTab] = useState('bookings');
-  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [registerForm, setRegisterForm] = useState({ name: '', email: '', password: '' });
-
-  const userBookings = currentUser 
-    ? bookings.filter(b => b.userId === currentUser.id)
-    : [];
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // In a real app, validate credentials against stored users
-    const user = { id: Date.now(), name: 'Demo User', email: loginForm.email };
-    loginUser(user);
-  };
-
-  const handleRegister = (e) => {
-    e.preventDefault();
-    const newUser = {
-      id: Date.now(),
-      name: registerForm.name,
-      email: registerForm.email,
-      password: registerForm.password // In real app, hash this
-    };
-    loginUser(newUser);
-  };
-
-  if (!currentUser) {
-    return (
-      <div className="auth-forms">
-        <div className="login-form">
-          <h2>Login</h2>
-          <form onSubmit={handleLogin}>
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                value={loginForm.email}
-                onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Password</label>
-              <input
-                type="password"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                required
-              />
-            </div>
-            <button type="submit" className="cta-button">Login</button>
-          </form>
-        </div>
-        
-        <div className="register-form">
-          <h2>Register</h2>
-          <form onSubmit={handleRegister}>
-            <div className="form-group">
-              <label>Full Name</label>
-              <input
-                type="text"
-                value={registerForm.name}
-                onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                value={registerForm.email}
-                onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Password</label>
-              <input
-                type="password"
-                value={registerForm.password}
-                onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
-                required
-              />
-            </div>
-            <button type="submit" className="cta-button">Register</button>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="account-section">
+      <div className="account-header">
+        <h1>🛠️ Admin Dashboard</h1>
+        <p>Manage voyages and bookings</p>
+      </div>
+
       <div className="account-tabs">
         <button 
           className={`tab-button ${activeTab === 'bookings' ? 'active' : ''}`}
           onClick={() => setActiveTab('bookings')}
         >
-          My Bookings
+          📋 All Bookings
         </button>
         <button 
-          className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
-          onClick={() => setActiveTab('profile')}
+          className={`tab-button ${activeTab === 'voyages' ? 'active' : ''}`}
+          onClick={() => setActiveTab('voyages')}
         >
-          Profile
+          🚢 Voyages
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'statistics' ? 'active' : ''}`}
+          onClick={() => setActiveTab('statistics')}
+        >
+          📊 Statistics
         </button>
       </div>
-      
+
       {activeTab === 'bookings' && (
-        <div className="tab-content active" id="bookingsTab">
-          <h2>My Bookings</h2>
-          <div className="bookings-list">
-            {userBookings.length === 0 ? (
-              <p>You have no bookings yet. <Link to="/voyages">Browse voyages</Link> to get started!</p>
-            ) : (
-              userBookings.map(booking => {
-                const voyage = voyages.find(v => v.id === booking.voyageId);
-                return (
-                  <div key={booking.id} className="booking-card">
-                    <div className="booking-header">
-                      <h3>{voyage.title}</h3>
-                      <span className={`booking-status ${booking.status}`}>
-                        {booking.status}
-                      </span>
+        <div className="tab-content active">
+          <h2>All Bookings</h2>
+          <p>Total Bookings: <strong>{bookings.length}</strong></p>
+          
+          {bookings.length === 0 ? (
+            <p>No bookings yet.</p>
+          ) : (
+            <div style={{ overflowX: 'auto', marginTop: '20px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#f0f0f0', borderBottom: '2px solid #ddd' }}>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>Booking ID</th>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>User ID</th>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>Voyage</th>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>Cabin</th>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>Passengers</th>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>Total Price</th>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>Status</th>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map(booking => (
+                    <tr key={booking.id} style={{ borderBottom: '1px solid #eee' }}>
+                      <td style={{ padding: '10px' }}>{booking.id}</td>
+                      <td style={{ padding: '10px' }}>{booking.userId}</td>
+                      <td style={{ padding: '10px' }}>{booking.voyageName}</td>
+                      <td style={{ padding: '10px' }}>{booking.cabinType}</td>
+                      <td style={{ padding: '10px' }}>{booking.passengerCount}</td>
+                      <td style={{ padding: '10px' }}>${booking.totalPrice}</td>
+                      <td style={{ padding: '10px' }}>
+                        <span style={{ 
+                          padding: '4px 8px', 
+                          borderRadius: '4px',
+                          backgroundColor: booking.status === 'Confirmed' ? '#d4edda' : '#fff3cd',
+                          color: booking.status === 'Confirmed' ? '#155724' : '#856404'
+                        }}>
+                          {booking.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px' }}>{new Date(booking.date).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'voyages' && (
+        <div className="tab-content">
+          <h2>Voyages Management</h2>
+          <p>Total Voyages: <strong>{voyages.length}</strong></p>
+          
+          <div style={{ marginTop: '20px' }}>
+            {voyages.map(voyage => (
+              <div key={voyage.id} style={{ 
+                padding: '15px', 
+                border: '1px solid #ddd', 
+                borderRadius: '5px',
+                marginBottom: '15px'
+              }}>
+                <h3>{voyage.title}</h3>
+                <p><strong>Departure:</strong> {new Date(voyage.departure).toLocaleDateString()}</p>
+                <p><strong>Duration:</strong> {voyage.duration}</p>
+                <p><strong>Ports:</strong> {voyage.ports.join(' → ')}</p>
+                <p><strong>Base Price:</strong> ${voyage.price}</p>
+                
+                <h4>Cabin Availability:</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                  {voyage.cabins.map(cabin => (
+                    <div key={cabin.type} style={{ 
+                      padding: '10px', 
+                      backgroundColor: '#f9f9f9',
+                      borderRadius: '4px'
+                    }}>
+                      <p><strong>{cabin.type}</strong></p>
+                      <p>Price: ${cabin.price}</p>
+                      <p>Available: {cabin.available}</p>
+                      <p>Max Occupancy: {cabin.maxOccupancy}</p>
                     </div>
-                    <div className="booking-details">
-                      <p><strong>Booking Reference:</strong> {booking.id}</p>
-                      <p><strong>Departure:</strong> {new Date(voyage.departure).toLocaleDateString()}</p>
-                      <p><strong>Cabin:</strong> {booking.cabinType}</p>
-                      <p><strong>Passengers:</strong> {booking.passengers.length}</p>
-                      <p><strong>Total Paid:</strong> ${booking.totalPrice}</p>
-                    </div>
-                  </div>
-                );
-              })
-            )}
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
-      
-      {activeTab === 'profile' && (
-        <div className="tab-content" id="profileTab">
-          <h2>My Profile</h2>
-          <form className="profile-form">
-            <div className="form-group">
-              <label>Full Name</label>
-              <input type="text" value={currentUser.name} readOnly />
+
+      {activeTab === 'statistics' && (
+        <div className="tab-content">
+          <h2>Statistics</h2>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '20px' }}>
+            <div style={{ 
+              padding: '20px', 
+              backgroundColor: '#e3f2fd',
+              borderRadius: '5px',
+              textAlign: 'center'
+            }}>
+              <h3>Total Bookings</h3>
+              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#1976d2' }}>{bookings.length}</p>
             </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input type="email" value={currentUser.email} readOnly />
+            
+            <div style={{ 
+              padding: '20px', 
+              backgroundColor: '#f3e5f5',
+              borderRadius: '5px',
+              textAlign: 'center'
+            }}>
+              <h3>Total Voyages</h3>
+              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#7b1fa2' }}>{voyages.length}</p>
             </div>
-            <div className="form-group">
-              <label>Change Password</label>
-              <input type="password" placeholder="Enter new password" />
+            
+            <div style={{ 
+              padding: '20px', 
+              backgroundColor: '#e8f5e9',
+              borderRadius: '5px',
+              textAlign: 'center'
+            }}>
+              <h3>Total Revenue</h3>
+              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#388e3c' }}>
+                ${bookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0)}
+              </p>
             </div>
-            <button type="button" className="cta-button">Update Profile</button>
-          </form>
+            
+            <div style={{ 
+              padding: '20px', 
+              backgroundColor: '#fff3e0',
+              borderRadius: '5px',
+              textAlign: 'center'
+            }}>
+              <h3>Total Passengers</h3>
+              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#f57c00' }}>
+                {bookings.reduce((sum, b) => sum + (b.passengerCount || 0), 0)}
+              </p>
+            </div>
+          </div>
+
+          <h3 style={{ marginTop: '30px' }}>Booking Status Distribution</h3>
+          <div style={{ padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '5px' }}>
+            <p>Confirmed: {bookings.filter(b => b.status === 'Confirmed').length}</p>
+            <p>Pending: {bookings.filter(b => b.status === 'Pending').length}</p>
+            <p>Cancelled: {bookings.filter(b => b.status === 'Cancelled').length}</p>
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-export default MyAccount;
+export default Admin;

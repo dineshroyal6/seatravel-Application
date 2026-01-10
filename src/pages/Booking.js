@@ -1,25 +1,28 @@
-// src/pages/BookingFlow.js
 import { useState } from 'react';
-import VoyageCard from '../components/VoyageCard';
+import { useNavigate } from 'react-router-dom';
+import CabinSelection from '../components/CabinSelection';
 import PassengerForm from '../components/PassengerForm';
 import PaymentForm from '../components/PaymentForm';
 import BookingSteps from '../components/BookingSteps';
 import '../components/Css/Voyage.css';
 
-const BookingFlow = ({ voyages, currentUser, addBooking }) => {
+const Booking = ({ voyages, currentUser, addBooking }) => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedVoyage, setSelectedVoyage] = useState(null);
+  const [selectedCabin, setSelectedCabin] = useState(null);
+  const [passengerCount, setPassengerCount] = useState(1);
   const [passengerData, setPassengerData] = useState([]);
   const [paymentData, setPaymentData] = useState({});
   const maxPassengers = 5;
 
-  // Filters (optional)
+  // Filters
   const [durationFilter, setDurationFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
 
   // Filter logic
   const filteredVoyages = voyages.filter((voyage) => {
-    const duration = Number(voyage.duration);
+    const duration = parseInt(voyage.duration);
     const price = Number(voyage.price);
 
     let durationMatch = true;
@@ -38,25 +41,49 @@ const BookingFlow = ({ voyages, currentUser, addBooking }) => {
 
   const handleVoyageSelect = (voyage) => {
     setSelectedVoyage(voyage);
+    setSelectedCabin(null);
+    setPassengerData([]);
     setStep(2);
+  };
+
+  const handleCabinSelect = (cabinType) => {
+    const cabin = selectedVoyage.cabins.find(c => c.type === cabinType);
+    setSelectedCabin(cabin);
+    setStep(3);
   };
 
   const handlePassengerSubmit = (passengers) => {
     setPassengerData(passengers);
-    setStep(3);
+    setPassengerCount(passengers.length);
+    setStep(4);
   };
 
   const handlePaymentSubmit = (paymentInfo) => {
     setPaymentData(paymentInfo);
+    
+    if (!currentUser) {
+      alert('Please log in or register before completing your booking.');
+      navigate('/my-account');
+      return;
+    }
+
     const booking = {
-      voyage: selectedVoyage,
-      user: currentUser,
+      id: Date.now(),
+      userId: currentUser.id,
+      voyageId: selectedVoyage.id,
+      voyageName: selectedVoyage.title,
+      cabinType: selectedCabin.type,
+      cabinPrice: selectedCabin.price,
+      passengerCount: passengerData.length,
       passengers: passengerData,
+      totalPrice: selectedCabin.price * passengerData.length,
       payment: paymentInfo,
       date: new Date().toISOString(),
+      status: 'Confirmed'
     };
+    
     addBooking(booking);
-    setStep(4);
+    setStep(5);
   };
 
   const renderStepContent = () => {
@@ -65,12 +92,12 @@ const BookingFlow = ({ voyages, currentUser, addBooking }) => {
         return (
           <>
             <div className="hero">
-              <h1>Our Voyages</h1>
+              <h1>🧳 All Available Voyages</h1>
               <p>Find your perfect sea adventure</p>
             </div>
 
             <section className="all-voyages">
-              <h2>All Available Voyages</h2>
+              <h2>Browse Voyages</h2>
               <div className="filter-options">
                 <select
                   value={durationFilter}
@@ -97,11 +124,32 @@ const BookingFlow = ({ voyages, currentUser, addBooking }) => {
               <div className="voyage-list">
                 {filteredVoyages.length > 0 ? (
                   filteredVoyages.map((voyage) => (
-                    <VoyageCard
-                      key={voyage.id}
-                      voyage={voyage}
-                      onSelect={() => handleVoyageSelect(voyage)}
-                    />
+                    <div key={voyage.id} className="voyage-card">
+                      <img 
+                        src={voyage.image} 
+                        alt={voyage.title}
+                        className="voyage-image"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/270x180?text=' + voyage.title.replace(/\s+/g, '+');
+                        }}
+                      />
+                      <div className="voyage-content">
+                        <h3>{voyage.title}</h3>
+                        <p className="description">{voyage.description}</p>
+                        <div className="voyage-details">
+                          <p><strong>📅 Departs:</strong> {new Date(voyage.departure).toLocaleDateString()}</p>
+                          <p><strong>⏱️ Duration:</strong> {voyage.duration}</p>
+                          <p><strong>🚢 Ports:</strong> {voyage.ports.join(' → ')}</p>
+                        </div>
+                        <p className="voyage-price"><strong>From ${voyage.price}</strong></p>
+                        <button 
+                          className="cta-button"
+                          onClick={() => handleVoyageSelect(voyage)}
+                        >
+                          Select Voyage
+                        </button>
+                      </div>
+                    </div>
                   ))
                 ) : (
                   <p className="no-results">
@@ -114,29 +162,74 @@ const BookingFlow = ({ voyages, currentUser, addBooking }) => {
         );
 
       case 2:
-        return (
-          <PassengerForm
-            maxPassengers={maxPassengers}
-            onSubmit={handlePassengerSubmit}
-            onBack={() => setStep(1)}
-          />
-        );
+        return selectedVoyage ? (
+          <div className="cabin-section">
+            <h2>Step 2: Select Your Cabin</h2>
+            <div className="voyage-info-summary">
+              <h3>{selectedVoyage.title}</h3>
+              <p>Departure: {new Date(selectedVoyage.departure).toLocaleDateString()}</p>
+            </div>
+            <CabinSelection 
+              voyage={selectedVoyage}
+              onSelect={handleCabinSelect}
+            />
+            <div className="booking-navigation">
+              <button className="btn-secondary" onClick={() => setStep(1)}>Back to Voyages</button>
+            </div>
+          </div>
+        ) : null;
 
       case 3:
-        return (
-          <PaymentForm
-            onSubmit={handlePaymentSubmit}
-            onBack={() => setStep(2)}
-          />
-        );
+        return selectedCabin ? (
+          <div className="passenger-section">
+            <h2>Step 3: Passenger Details</h2>
+            <div className="booking-info-summary">
+              <p><strong>Voyage:</strong> {selectedVoyage.title}</p>
+              <p><strong>Cabin Type:</strong> {selectedCabin.type}</p>
+              <p><strong>Price per person:</strong> ${selectedCabin.price}</p>
+            </div>
+            <PassengerForm
+              maxPassengers={Math.min(maxPassengers, selectedCabin.maxOccupancy)}
+              onSubmit={handlePassengerSubmit}
+              onBack={() => setStep(2)}
+            />
+          </div>
+        ) : null;
 
       case 4:
+        return selectedVoyage && selectedCabin ? (
+          <div className="payment-section">
+            <h2>Step 4: Payment</h2>
+            <PaymentForm
+              voyage={selectedVoyage}
+              cabin={selectedCabin}
+              passengerCount={passengerData.length}
+              onSubmit={handlePaymentSubmit}
+              onBack={() => setStep(3)}
+            />
+          </div>
+        ) : null;
+
+      case 5:
         return (
           <div className="confirmation">
             <h2>🎉 Booking Confirmed!</h2>
-            <p>Thank you for booking {selectedVoyage.name}.</p>
-            <p>Passengers: {passengerData.length}</p>
-            <p>Payment: {paymentData.cardNumber ? 'Received' : 'Pending'}</p>
+            <div className="confirmation-details">
+              <p><strong>Voyage:</strong> {selectedVoyage.title}</p>
+              <p><strong>Cabin Type:</strong> {selectedCabin.type}</p>
+              <p><strong>Passengers:</strong> {passengerData.length}</p>
+              <p><strong>Total Cost:</strong> ${selectedCabin.price * passengerData.length}</p>
+              <p><strong>Confirmation Date:</strong> {new Date().toLocaleDateString()}</p>
+            </div>
+            <p style={{ marginTop: '20px', color: '#666' }}>
+              A confirmation email has been sent to {currentUser?.email}
+            </p>
+            <button 
+              className="cta-button"
+              onClick={() => navigate('/my-account')}
+            >
+              View My Bookings
+            </button>
           </div>
         );
 
@@ -153,4 +246,4 @@ const BookingFlow = ({ voyages, currentUser, addBooking }) => {
   );
 };
 
-export default BookingFlow;
+export default Booking;

@@ -8,10 +8,6 @@ import Booking from './pages/Booking';
 import MyAccount from './pages/MyAccount';
 import Admin from './pages/Admin';
 import { initialVoyages, initialBookings, initialUsers } from './voyages';
-import PassengerForm from './components/PassengerForm';
-import PaymentForm from './components/PaymentForm';
-import CabinSelection from './components/CabinSelection';
-import BookingSteps from './components/BookingSteps';
 
 function App() {
   const [voyages, setVoyages] = useState([]);
@@ -19,26 +15,43 @@ function App() {
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Initialize data
+  // Initialize data from localStorage or use initial data
   useEffect(() => {
-    const storedVoyages = JSON.parse(localStorage.getItem('voyages')) || initialVoyages;
-    const storedBookings = JSON.parse(localStorage.getItem('bookings')) || initialBookings;
-    const storedUsers = JSON.parse(localStorage.getItem('users')) || initialUsers;
-    const storedCurrentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const storedVoyages = localStorage.getItem('voyages');
+    const storedBookings = localStorage.getItem('bookings');
+    const storedUsers = localStorage.getItem('users');
+    const storedCurrentUser = localStorage.getItem('currentUser');
 
-    setVoyages(storedVoyages);
-    setBookings(storedBookings);
-    setUsers(storedUsers);
-    setCurrentUser(storedCurrentUser);
+    setVoyages(storedVoyages ? JSON.parse(storedVoyages) : initialVoyages);
+    setBookings(storedBookings ? JSON.parse(storedBookings) : initialBookings);
+    setUsers(storedUsers ? JSON.parse(storedUsers) : initialUsers);
+    setCurrentUser(storedCurrentUser ? JSON.parse(storedCurrentUser) : null);
   }, []);
 
-  // Update localStorage when state changes
+  // Persist data to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('voyages', JSON.stringify(voyages));
+    if (voyages.length > 0) {
+      localStorage.setItem('voyages', JSON.stringify(voyages));
+    }
+  }, [voyages]);
+
+  useEffect(() => {
     localStorage.setItem('bookings', JSON.stringify(bookings));
-    localStorage.setItem('users', JSON.stringify(users));
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-  }, [voyages, bookings, users, currentUser]);
+  }, [bookings]);
+
+  useEffect(() => {
+    if (users.length > 0) {
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+  }, [users]);
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('currentUser');
+    }
+  }, [currentUser]);
 
   const loginUser = (user) => {
     setCurrentUser(user);
@@ -49,26 +62,35 @@ function App() {
   };
 
   const addBooking = (booking) => {
-    setBookings([...bookings, booking]);
+    // Add the booking
+    setBookings(prevBookings => [...prevBookings, booking]);
     
-    // Update cabin availability
-    const updatedVoyages = voyages.map(voyage => {
-      if (voyage.id === booking.voyageId) {
-        const updatedCabins = voyage.cabins.map(cabin => {
-          if (cabin.type === booking.cabinType) {
-            return { ...cabin, available: cabin.available - 1 };
-          }
-          return cabin;
-        });
-        return { ...voyage, cabins: updatedCabins };
-      }
-      return voyage;
-    });
-    setVoyages(updatedVoyages);
+    // Update cabin availability when booking is confirmed
+    setVoyages(prevVoyages =>
+      prevVoyages.map(voyage => {
+        if (voyage.id === booking.voyageId) {
+          const updatedCabins = voyage.cabins.map(cabin => {
+            if (cabin.type === booking.cabinType) {
+              return { 
+                ...cabin, 
+                available: Math.max(0, cabin.available - 1) 
+              };
+            }
+            return cabin;
+          });
+          return { ...voyage, cabins: updatedCabins };
+        }
+        return voyage;
+      })
+    );
   };
 
   const addVoyage = (voyage) => {
-    setVoyages([...voyages, voyage]);
+    const newVoyage = {
+      ...voyage,
+      id: voyages.length > 0 ? Math.max(...voyages.map(v => v.id)) + 1 : 1
+    };
+    setVoyages([...voyages, newVoyage]);
   };
 
   return (
@@ -100,57 +122,12 @@ function App() {
                 />
               } 
             />
-             <Route 
-              path="/passengerForm" 
-              element={
-                <PassengerForm 
-                  bookings={bookings} 
-                  voyages={voyages} 
-                  currentUser={currentUser} 
-                  loginUser={loginUser} 
-                />
-              } 
-            />
-             <Route 
-              path="/paymentForm" 
-              element={
-                <PaymentForm
-                  bookings={bookings} 
-                  voyages={voyages} 
-                  currentUser={currentUser} 
-                  loginUser={loginUser} 
-                />
-              } 
-            />
             <Route 
               path="/admin" 
               element={
                 <Admin 
                   voyages={voyages} 
-                  bookings={bookings} 
-                  users={users} 
-                  addVoyage={addVoyage} 
-                />
-              } 
-            />
-             <Route 
-              path="/bookingsteps" 
-              element={
-                <BookingSteps
-                  voyages={voyages} 
-                  bookings={bookings} 
-                  users={users} 
-                  addVoyage={addVoyage} 
-                />
-              } 
-            />
-             <Route 
-              path="/cabinselection" 
-              element={
-                <CabinSelection
-                  voyages={voyages} 
-                  bookings={bookings} 
-                  users={users} 
+                  bookings={bookings}
                   addVoyage={addVoyage} 
                 />
               } 

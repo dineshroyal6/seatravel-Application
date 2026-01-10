@@ -1,3 +1,5 @@
+import './Css/cabinselection.css';
+
 const CabinSelection = ({ voyage, onSelect }) => {
   if (!voyage || !voyage.cabins) {
     return (

@@ -1,15 +1,16 @@
 
 const BookingSteps = ({ currentStep }) => {
   const steps = [
-    'Select Cabin',
-    'Passenger Details',
-    'Payment',
-    'Confirmation',
+    { label: 'Select Voyage', icon: '🧳' },
+    { label: 'Select Cabin', icon: '🚪' },
+    { label: 'Passengers', icon: '👥' },
+    { label: 'Payment', icon: '💳' },
+    { label: 'Confirmation', icon: '✅' }
   ];
 
   return (
     <div className="booking-steps">
-      {steps.map((label, index) => {
+      {steps.map((step, index) => {
         const stepNumber = index + 1;
         return (
           <div
@@ -18,7 +19,8 @@ const BookingSteps = ({ currentStep }) => {
               currentStep > stepNumber ? 'completed' : ''
             }`}
           >
-            {stepNumber}. {label}
+            <span className="step-icon">{step.icon}</span>
+            <span className="step-label">{stepNumber}. {step.label}</span>
           </div>
         );
       })}
