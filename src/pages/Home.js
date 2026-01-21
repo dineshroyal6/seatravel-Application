@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import VoyageCard from '../components/VoyageCard';
 import '../components/Css/Home.css';
 import image from '../Images/luxury-bedroom.jpg';
 import image1 from '../Images/arborek-island-atoll.jpg';
@@ -13,7 +12,6 @@ import Lottie from "lottie-react";
 import anime from "../Images/ship is sailing.json";
 
 const Home = ({ voyages }) => {
-  const featuredVoyages = voyages.slice(0, 3);
   const featuredTrips = [
     {
       id: 1,

@@ -11,9 +11,9 @@ const Booking = ({ voyages, currentUser, addBooking }) => {
   const [step, setStep] = useState(1);
   const [selectedVoyage, setSelectedVoyage] = useState(null);
   const [selectedCabin, setSelectedCabin] = useState(null);
-  const [passengerCount, setPassengerCount] = useState(1);
+  const [, setPassengerCount] = useState(1);
   const [passengerData, setPassengerData] = useState([]);
-  const [paymentData, setPaymentData] = useState({});
+  const [, setPaymentData] = useState({});
   const maxPassengers = 5;
 
   // Filters

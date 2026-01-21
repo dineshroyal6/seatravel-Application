@@ -3,7 +3,7 @@ import './Css/payment.css';
 
 const PaymentForm = ({ voyage, cabin, passengerCount, onSubmit, onBack }) => {
   const [paymentMode, setPaymentMode] = useState('card');
-  const [paymentData] = useState({
+  const [paymentData, setPaymentData] = useState({
     cardName: '',
     cardNumber: '',
     expiryDate: '',
